@@ -1,0 +1,203 @@
+import User from '../models/User';
+import bcrypt from 'bcrypt';
+
+export const getJoin = (req,res) => res.render('Join', {pageTitle: 'Create Account'});
+
+export const postJoin = async(req,res) => {
+  const {name, username, email, password,password2, location} = req.body;
+  const pageTitle = 'Join';
+  if(password !== password2) {
+    return res.status(400).render('join', {
+      pageTitle,
+      errorMessage: 'Password confimation does not match.',
+    })
+  }
+  const exists = await User.exists({$or: [{username}, {email}]});
+  if (exists) {
+    return res.status(400).render('join', {
+      pageTitle,
+      errorMessage: 'This username/email is already taken',
+    });
+  }
+  try{
+    await User.create({
+      name,
+      username,
+      email,
+      password,
+      location,
+    });
+    return res.redirect('/login');
+  } catch (error) {
+    return res.status(400).render('join', {
+      pageTitle: "Upload Video",
+      errorMessage: error._message,
+    })
+  }
+  
+}
+
+export const getLogin = (req,res) => res.render('login', {pageTitle: 'Login'});
+
+export const postLogin = async(req,res) => {
+  const { username, password } = req.body;
+  const pageTitle = 'Login'
+  // 입력한 username을 가지는 데이터가 있는지 db에서 확인
+  const user = await User.findOne({ username, socialOnly: false });
+  if (!user) {
+    return res.status(400).render("login", {
+      pageTitle,
+      errorMessage: "An account with this username does not exists.",
+    });
+  }
+  // 유저가 form에 입력한 password를 bcrypt.compare를 이용해 db에 저장된 해당 username이 등록한 password와 일치하는지 확인
+  const ok = await bcrypt.compare(password, user.password);
+  if(!ok) {
+    return res.status(400).render('login', {
+      pageTitle,
+      errorMessage: 'Wrong password',
+    });
+  }
+  req.session.loggedIn = true;
+  req.session.user = user;
+  return res.redirect('/');
+};
+
+// 깃허브를 통한 소셜로그인 진행 시 리다이렉트 할 github url 설정
+// github에서 제공하는 baseUrl에 필수 파라미터인 client_id와 추가하고자 하는 다른 파라미터를 쿼리 스트링으로 추가할 수 있도록 입력
+export const startGithubLogin = (req,res) => {
+  const baseUrl = 'https://github.com/login/oauth/authorize'
+  const config = {
+    client_id: process.env.GH_CLIENT,
+    allow_signup: false,
+    scope: 'read:user user:email',
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+  return res.redirect(finalUrl);
+};
+
+
+// 유저가 정보제공을 동의하며 github로 로그인 할 것을 승인한다면 access_token을 받아 headers에 넣어 필요한 데이터에 접근 가능한 api url에서 유저 정보 받아옴
+export const finishGithubLogin = async (req, res) => {
+  const baseUrl = 'https://github.com/login/oauth/access_token';
+  const config = {
+    client_id: process.env.GH_CLIENT,
+    client_secret: process.env.GH_SECRET,
+    code: req.query.code,
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+  const tokenRequest = await (
+    await fetch(finalUrl, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+  ).json();
+  if ('access_token' in tokenRequest) {
+    const { access_token } = tokenRequest;
+    const apiUrl = 'https://api.github.com';
+    const userData = await (
+      await fetch(`${apiUrl}/user`, {
+        headers: {
+          Authorization: `token ${access_token}`,
+        },
+      })
+    ).json();
+    const emailData = await (
+      await fetch(`${apiUrl}/user/emails`, {
+        headers: {
+          Authorization: `token ${access_token}`,
+        },
+      })
+    ).json();
+    const emailObj = emailData.find(
+      (email) => email.primary === true && email.verified === true
+    );
+    if (!emailObj) {
+      // 깃허브로 로그인하려고 할 때 verified된 이메일이 없다면 우리는 그 정보를 신뢰할 수 없으니 verified된 이메일이 없다거나 인증이 필요하다는 알림을 줘야 한다.
+      // set notification
+      return res.redirect('/login');
+    }
+    // 이미 해당 email을 가진 유저가 존재한다면 로그인 시켜주고 홈으로 리다이렉트
+    // 이메일이 없다면 계정 생성. 소셜로그인 했음을 알기 위해 socialOnly: true 추가
+    let user = await User.findOne({ email: emailObj.email });
+    if (!user) {
+      user = await User.create({
+        avatarUrl: userData.avatar_url,
+        name: userData.name,
+        username: userData.login,
+        email: emailObj.email,
+        password: '',
+        socialOnly: true,
+        location: userData.location,
+      });
+    }
+    req.session.loggedIn = true;
+    req.session.user = user;
+    return res.redirect('/');
+  } else {
+    return res.redirect('/login');
+  }
+};
+
+
+export const getEdit = (req, res) => {
+  return res.render('edit-profile', {pageTitle: 'Edit Profile'})
+};
+
+export const postEdit = async(req, res) => {
+  // const id = req.session.user.id;와
+  // const {name, email, username, location} = req.body;
+  // 위의 두 줄을 합쳐서 다음과 같이 적을 수 있다.
+  const {
+    session: {
+      user: {_id, email: sessionEmail, username: sessionUsername},
+    },
+    body: {
+      name, email, username, location
+    },
+  } = req;
+
+  // 유저가 이미 등록된 email이나 username으로 업데이트를 시도하면?
+  // 유저가 변경하려는 정보가 무엇인지 body의 데이터와 session의 데이터를 비교해 확인한다.
+  // req.body의 정보와 mongoDB에 있는 정보를 비교한다.
+  // 같은 email 또는 username이 존재하면 에러메세지와 함께 페이지를 리다이렉트한다.
+  const usernameExists =
+    username != sessionUsername ? await User.exists({ username }) : undefined;
+  const emailExists =
+    email != sessionEmail ? await User.exists({ email }) : undefined;
+  if (usernameExists || emailExists) {
+    return res.status(400).render("edit-profile", {
+      pageTitle: "Edit Profile",
+      usernameErrorMessage: usernameExists
+        ? "This username is already taken"
+        : 0,
+      emailErrorMessage: emailExists ? "This email is already taken" : 0,
+    });
+  }
+  // 같은 email 또는 username이 존재하지 않으면 정보 수정을 완료
+  // findByIdAndUpdate함수에 아래의 세 가지 파라미터 전달.
+  // 찾으려는 _id / 업데이트 할 항목 / 업데이트 후 가장 최신 사항을 반영할 것(new: true)
+  const updatedUser = await User.findByIdAndUpdate(
+    _id, 
+    {
+    name,
+    email,
+    username,
+    location,
+    },
+    {new: true});
+    req.session.user = updatedUser;
+  return res.redirect('/users/edit');
+};
+
+
+export const logout = (req,res) => {
+  req.session.destroy();
+  return res.redirect('/')
+};
+
+export const see = (req,res) =>  res.send("See User");
