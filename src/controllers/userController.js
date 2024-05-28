@@ -200,4 +200,48 @@ export const logout = (req,res) => {
   return res.redirect('/')
 };
 
+// 패스워드 변경 페이지 렌더링
+// 깃허브로 로그인 한 유저의 경우 패스워드가 없으므로 이 페이지에 접근X
+export const getChangePassword = (req,res) => {
+  if(req.session.user.socialOnly === true) {
+    return res.redirect('/');
+  }
+  return res.render('users/change-password', {pageTitle: 'Change Password'});
+}
+
+export const postChangePassword = async(req,res) => {
+  const {
+    session: {
+      user: {_id, password},
+    },
+    body: {
+      oldPassword, 
+      newPassword,
+      newPassword2
+    },
+  } = req;
+  // 기존의 비밀번호가 맞는지 확인
+  const oldPasswordConfirmation = await bcrypt.compare(oldPassword, password);
+  if(!oldPasswordConfirmation) {
+    return res.status(400).render('users/change-password', {
+      pageTitle: 'Change Password',
+      errorMessage: 'The current password is incorrect',
+    });
+  }
+  // 새로 입력한 password와 password comfirmation 일치여부 확인
+  if(newPassword !== newPassword2) {
+    return res.status(400).render('users/change-password', {
+      pageTitle: 'Change Password',
+      errorMessage: 'The Password does not match',
+    });
+  }
+  // 입력한 password가 모두 일치할 경우 해당 유저의 id로 유저 정보를 찾아 DB에 패스워드 변경하여 저장. 단, save()를 통해 새 password를 해시 후 저장.
+  // 세션의 password 데이터도 업데이트 해준 뒤 새로운 password로 로그인 하도록 로그아웃 조치
+  const user = await User.findById('_id');
+  user.password = newPassword;
+  await user.save();
+  req.session.user.password = user.password;
+  return res.redirect('/logout');
+}
+
 export const see = (req,res) =>  res.send("See User");

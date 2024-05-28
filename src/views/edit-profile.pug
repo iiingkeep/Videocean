@@ -11,3 +11,7 @@ block content
     input(name='username', placeholder='username', type='text', required, value=loggedInUser.username)
     input(name='location', placeholder='location', type='text', required, value=loggedInUser.location)
     input(type='submit', value='update profile')
+    //- 깃허브로 로그인한 사용자는 비밀번호가 없으므로 비밀번호 변경 버튼을 숨기고 사이트에서 아이디와 패스워드를 만든 사람만 비밀번호를 변경할 수 있게 노출
+    if !loggedInUser.socialOnly
+      hr
+      a(href='change-password') Change Password &rarr;
