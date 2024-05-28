@@ -27,6 +27,12 @@ export const publicOnlyMiddleware = (req, res, next) => {
 };
 
 // 유저가 보낸 파일을 uploads 폴더에 저장하도록 설정하는 미들웨어
-export const uploadMiddleware = multer({
-  dest:'uploads/'
+// avatar와 video파일 업로드 시 
+export const avatarUploadMiddleware = multer({
+  dest:'uploads/avatars/',
+  limits: {fileSize: 3000000} // 3Mb
+})
+export const videoUploadMiddleware = multer({
+  dest:'uploads/videos/',
+  limits: {fileSize: 10000000} // 10Mb
 })

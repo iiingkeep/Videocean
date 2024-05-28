@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 
 const videoSchema = new mongoose.Schema({
   title: {type: String, required: true, trim:true, maxLength: 80},
+  fileUrl: {type: String, required: true} ,
   description: {type: String, required: true, trim:true, minLength: 20},
   createdAt: {type: Date, required: true, default: Date.now}, // 매번 설정해주지 않으려 default값으로 날짜 설정. 단, Date.now()는 함수를 바로 실행시키므로 내가 새로운 Video를 만들 때만 실행될 수 있도록 Date.now로 적어준다.
   hashtags: [{ type: String, trim:true }], //배열로 설정하기 위해 [] 사용
