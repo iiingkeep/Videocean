@@ -9,13 +9,12 @@ const userSchema = new mongoose.Schema({
   password: {type: String},
   name: {type: String, required: true},
   location: String,
+  videos: [{type: mongoose.Schema.Types.ObjectId, ref: 'Video'}]
 });
 
 // this는 Users가 create될 때 유저가 입력한 value
 userSchema.pre('save', async function() {
-  console.log('plain password: ', this.password);
   this.password = await bcrypt.hash(this.password, 5);
-  console.log('hashing password: ', this.password);
 })
 
 const User = mongoose.model('User', userSchema);

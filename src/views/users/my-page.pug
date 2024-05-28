@@ -1,4 +1,8 @@
 extends ../base 
+include ../mixins/video
 
 block content 
-  h1 Hello
+  each video in user.videos // pupulate 사용으로 받음
+    +video(video)
+  else 
+    li Sorry nothing found.
