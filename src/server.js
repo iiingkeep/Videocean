@@ -36,6 +36,7 @@ app.use(session({
 app.use(localsMiddleware);
 
 // routers
+app.use('/uploads', express.static('uploads'));
 app.use('/', rootRouter);
 app.use('/videos', videoRouter);
 app.use('/users', userRouter);

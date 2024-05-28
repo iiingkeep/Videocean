@@ -154,13 +154,14 @@ export const postEdit = async(req, res) => {
   // 위의 두 줄을 합쳐서 다음과 같이 적을 수 있다.
   const {
     session: {
-      user: {_id, email: sessionEmail, username: sessionUsername},
+      user: {_id, email: sessionEmail, username: sessionUsername, avatarUrl},
     },
     body: {
       name, email, username, location
     },
+    file,
   } = req;
-
+  console.log('파일:', file);
   // 유저가 이미 등록된 email이나 username으로 업데이트를 시도하면?
   // 유저가 변경하려는 정보가 무엇인지 body의 데이터와 session의 데이터를 비교해 확인한다.
   // req.body의 정보와 mongoDB에 있는 정보를 비교한다.
@@ -184,6 +185,9 @@ export const postEdit = async(req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     _id, 
     {
+      // 유저가 avatar를 변경하려고 파일을 추가하면 file.path가 생긴다(uploads/filename) 하지만 avatar 변경을 하지 않고 다른 정보만 변경한다면 file자체는 undefined가 된다.
+      // 그렇기에 파일을 업로드 할 때만 그 파일의 file.path를 avatarUrl에 업데이트하고, 아니라면 session에 있는 기존 aratarUrl 사용
+    avatarUrl: file ? file.path : avatarUrl,
     name,
     email,
     username,
