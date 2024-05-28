@@ -248,4 +248,15 @@ export const postChangePassword = async(req,res) => {
   return res.redirect('/logout');
 }
 
-export const see = (req,res) =>  res.send("See User");
+// 유저의 profile페이지 렌더링.
+// 이 페이지는 누구나 접근 가능해야 한다 = id를 params에서 가져와야 한다.
+export const see = async(req,res) => {
+  const {id} = req.params;
+  const user = await User.findById(id);
+  if(!user) {
+    return res.status(404).render('404', {pageTitle: 'User not found'})
+  }
+  return res.render('users/my-page', {
+    pageTitle: `${user.name}'s Profile`,
+    user});
+};
