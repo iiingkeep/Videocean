@@ -1,5 +1,4 @@
 import User from '../models/User';
-import Video from '../models/Video'
 import bcrypt from 'bcrypt';
 
 export const getJoin = (req,res) => res.render('Join', {pageTitle: 'Create Account'});
@@ -253,11 +252,17 @@ export const postChangePassword = async(req,res) => {
 // 이 페이지는 누구나 접근 가능해야 한다 = id를 params에서 가져와야 한다.
 export const see = async(req,res) => {
   const {id} = req.params;
-  const user = await User.findById(id).populate('videos');
+  const user = await User.findById(id).populate({
+    path: "videos",
+    populate: {
+      path: "owner",
+      model: "User",
+    },
+  });
   if(!user) {
     return res.status(404).render('404', {pageTitle: 'User not found'})
   };
-  return res.render('users/my-page', {
+  return res.render('users/profile', {
     pageTitle: `${user.name}'s Profile`,
     user
   });
