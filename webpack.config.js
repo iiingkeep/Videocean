@@ -5,7 +5,10 @@ const path = require('path');
 // webpack이 읽을 configuration 파일 내보내기
 // export default. endtry와 output 설정
 module.exports = {
-  entry: './src/client/js/main.js', // 변경하려는 기본 파일
+  entry: {
+    main: './src/client/js/main.js', // 변경하려는 기본 파일
+    videoPlayer: './src/client/js/videoPlayer.js',
+  },
   mode: 'development',
   watch: true,
   plugins: [
@@ -14,7 +17,7 @@ module.exports = {
     }),
   ],
   output: { // 변경작업이 끝난 파일 이름과 경로 설정
-    filename: "js/main.js",
+    filename: "js/[name].js",
     path: path.resolve(__dirname, "assets"),
     clean: true,
   },
