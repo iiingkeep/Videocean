@@ -1,8 +1,10 @@
 const video = document.querySelector('video');
 const playBtn = document.getElementById('play');
 const muteBtn = document.getElementById('mute');
-const time = document.getElementById('time');
 const volumRange = document.getElementById('volume');
+const currenTime = document.getElementById('currentTime');
+const totalTime = document.getElementById('totalTime');
+
 
 let volumeValue = 0.5;
 video.volume = volumeValue;
@@ -40,10 +42,26 @@ const handleVolumeChange = (e) => {
     video.muted = true;
     muteBtn.innerText = "Unmute";
     }
-
   }
 
+// 영상의 시간을 00:00:00 의 형태로 포맷하기 위한 함수
+// new Date(밀리초)을 사용하면 반환되는 데이터에서 시간 부분만 가져와 사용하는 방법
+const formatTime = (seconds) =>
+  new Date(seconds * 1000).toISOString().substring(11,19);
+
+// metadata: 비디오를 제외한 모든 부가적인 것 (시간, 크기 등 )
+// 영상의 전체 재생시간 로딩
+const handleLoadedMetadata = () => {
+  totalTime.innerText = formatTime(Math.floor(video.duration));
+}
+
+// 영상에서 현재 재생되고있는 부분의 시간 로딩
+const handleTimeUpdate = () => {
+  currenTime.innerText = formatTime(Math.floor(video.currentTime));
+}
 
 playBtn.addEventListener('click', handlePlayClick);
 muteBtn.addEventListener('click', handleMuteClick);
 volumRange.addEventListener('input', handleVolumeChange);
+video.addEventListener('loadedmetadata', handleLoadedMetadata);
+video.addEventListener('timeupdate', handleTimeUpdate);
