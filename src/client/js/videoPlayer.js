@@ -6,9 +6,11 @@ const currenTime = document.getElementById('currentTime');
 const totalTime = document.getElementById('totalTime');
 const timeline = document.getElementById('timeline');
 const fullScreenBtn = document.getElementById('fullScreen');
-const videoContainer = document.getElementById('videoContainer')
+const videoContainer = document.getElementById('videoContainer');
+const videoControls = document.getElementById('videoControls');
 
-
+let controlsTimeout = null;
+let controlsMovementTimeout = null;
 let volumeValue = 0.5;
 video.volume = volumeValue;
 
@@ -22,6 +24,7 @@ const handlePlayClick = (e) => {
   playBtn.innerText = video.play ? 'Pause' : 'Play'
 };
 
+// video가 음소거 상태일 때 mute버튼을 클릭하면 소리가 나도록, 한번 더 누르면 음소거로 바뀌도록 기능과 텍스트 설정
 const handleMuteClick = (e) => {
   if(video.muted) {
     video.muted = false;
@@ -32,6 +35,8 @@ const handleMuteClick = (e) => {
   volumRange.value = video.muted ? 0 : volumeValue;
 };
 
+// volume range bar와 video의 volume을 연결
+// volume range bar를 움직여 mute/unmute일 때 상태와 버튼 텍스트 설정
 const handleVolumeChange = (e) => {
   const {target: {value},} = e;
   if(video.muted) {
@@ -63,14 +68,15 @@ const handleLoadedMetadata = () => {
 const handleTimeUpdate = () => {
   currenTime.innerText = formatTime(Math.floor(video.currentTime));
   timeline.value = Math.floor(video.currentTime);
-}
+};
 
 const handleTimelineChange = (e) => {
   const {target: {value}} = e;
   video.currentTime = value;
-}
+};
 
 const handleFullscreen = () => {
+  // fullscreen mode라면 해당 element 반환, 아니라면 null반환.
   const fullscreen = document.fullscreenElement;
   if (fullscreen) {
     document.exitFullscreen();
@@ -79,6 +85,29 @@ const handleFullscreen = () => {
     videoContainer.requestFullscreen();
     fullScreenBtn.innerText = 'Exit Full Screen'
   }
+};
+
+const hideControls = () => videoControls.classList.remove('showing')
+
+const handleMouseMove = () => {
+  // video 밖으로 마우스가 나갔다가 다시 들어오면 handleMouseLeave 함수의 setTimeout이 실행되지 않아야 하므로 setTimeout을 지워주고 null로 다시 설정
+  if(controlsTimeout) {
+    clearTimeout(controlsTimeout);
+    controlsTimeout = null;
+  }
+  // 마우스를 계속 움직인다면 아래 설정한 setTimeout을 계속 삭제함으로써 컨트롤이 사라지지 않게 유지함
+  if(controlsMovementTimeout) {
+    clearTimeout(controlsMovementTimeout);
+    controlsMovementTimeout = null;
+  }
+  // video 안에서 마우스 움직이면 showing class를 추가하고 컨트롤을 3초뒤에 숨김
+  videoControls.classList.add('showing');
+  controlsMovementTimeout = setTimeout(hideControls, 3000);
+}
+
+// video 밖으로 마우스가 나가면 3초 뒤 컨트롤 안보이도록 클래스 제거 설정
+const handleMouseLeave = () => {
+  controlsTimeout = setTimeout(hideControls, 3000);
 }
 
 playBtn.addEventListener('click', handlePlayClick);
@@ -88,3 +117,5 @@ video.addEventListener('loadedmetadata', handleLoadedMetadata);
 video.addEventListener('timeupdate', handleTimeUpdate);
 timeline.addEventListener('input', handleTimelineChange);
 fullScreenBtn.addEventListener('click', handleFullscreen);
+video.addEventListener('mousemove', handleMouseMove);
+video.addEventListener('mouseleave', handleMouseLeave)
