@@ -1,11 +1,14 @@
 const video = document.querySelector('video');
 const playBtn = document.getElementById('play');
+const playBtnIcon = playBtn.querySelector('i')
 const muteBtn = document.getElementById('mute');
+const muteBtnIcon = muteBtn.querySelector('i');
 const volumRange = document.getElementById('volume');
 const currenTime = document.getElementById('currentTime');
 const totalTime = document.getElementById('totalTime');
 const timeline = document.getElementById('timeline');
 const fullScreenBtn = document.getElementById('fullScreen');
+const fullScreenBtnIcon = fullScreenBtn.querySelector('i');
 const videoContainer = document.getElementById('videoContainer');
 const videoControls = document.getElementById('videoControls');
 
@@ -14,14 +17,15 @@ let controlsMovementTimeout = null;
 let volumeValue = 0.5;
 video.volume = volumeValue;
 
+
 // video가 멈춰있을 때 클릭하면 play, 재생중일 때 클릭하면 pause
-const handlePlayClick = (e) => {
+const handlePlayClick = () => {
   if(video.paused) {
     video.play();
   } else {
     video.pause();
   }
-  playBtn.innerText = video.play ? 'Pause' : 'Play'
+  playBtnIcon.className = video.paused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
 };
 
 // video가 음소거 상태일 때 mute버튼을 클릭하면 소리가 나도록, 한번 더 누르면 음소거로 바뀌도록 기능과 텍스트 설정
@@ -31,7 +35,7 @@ const handleMuteClick = (e) => {
   } else {
     video.muted = true;
   }
-  muteBtn.innerText = video.muted ? "Unmute" : "Mute";
+  muteBtnIcon.className = video.muted ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
   volumRange.value = video.muted ? 0 : volumeValue;
 };
 
@@ -41,14 +45,14 @@ const handleVolumeChange = (e) => {
   const {target: {value},} = e;
   if(video.muted) {
     video.muted = false;
-    muteBtn.innerText = 'Mute';
+    muteBtnIcon.className = 'fa-solid fa-volume-xmark';
   }
   volumeValue = Number(value);
   video.volume = value;
 
   if (volumeValue === 0) {
     video.muted = true;
-    muteBtn.innerText = "Unmute";
+    muteBtnIcon.className = "fa-solid fa-volume-high";
     }
   }
 
@@ -80,10 +84,10 @@ const handleFullscreen = () => {
   const fullscreen = document.fullscreenElement;
   if (fullscreen) {
     document.exitFullscreen();
-    fullScreenBtn.innerText = 'Enter Full Screen'
+    fullScreenBtnIcon.className = 'fa-solid fa-expand'
   } else {
     videoContainer.requestFullscreen();
-    fullScreenBtn.innerText = 'Exit Full Screen'
+    fullScreenBtnIcon.className = 'fa-solid fa-compress'
   }
 };
 
@@ -117,5 +121,5 @@ video.addEventListener('loadedmetadata', handleLoadedMetadata);
 video.addEventListener('timeupdate', handleTimeUpdate);
 timeline.addEventListener('input', handleTimelineChange);
 fullScreenBtn.addEventListener('click', handleFullscreen);
-video.addEventListener('mousemove', handleMouseMove);
-video.addEventListener('mouseleave', handleMouseLeave)
+videoContainer.addEventListener('mousemove', handleMouseMove);
+videoContainer.addEventListener('mouseleave', handleMouseLeave);
