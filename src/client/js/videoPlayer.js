@@ -1,6 +1,6 @@
 const video = document.querySelector('video');
 const playBtn = document.getElementById('play');
-const playBtnIcon = playBtn.querySelector('i')
+const playBtnIcon = playBtn.querySelector('i');
 const muteBtn = document.getElementById('mute');
 const muteBtnIcon = muteBtn.querySelector('i');
 const volumRange = document.getElementById('volume');
@@ -107,19 +107,44 @@ const handleMouseMove = () => {
   // video 안에서 마우스 움직이면 showing class를 추가하고 컨트롤을 3초뒤에 숨김
   videoControls.classList.add('showing');
   controlsMovementTimeout = setTimeout(hideControls, 3000);
-}
+};
 
 // video 밖으로 마우스가 나가면 3초 뒤 컨트롤 안보이도록 클래스 제거 설정
 const handleMouseLeave = () => {
   controlsTimeout = setTimeout(hideControls, 3000);
+};
+
+// video control과 관련한 단축키 설정
+const handleKeydown = (event) => {
+  if (event.code === "Space") {
+    handlePlayClick();
+  }
+  if (event.code === "KeyM") {
+    handleMuteClick();
+  }
+  if (event.code === "KeyF") {
+    handleFullscreen ();
+  }
+};
+
+// fetch(apiUrl)를 이용해 video 재생이 끝나면 해당 url로 POST 요청을 보냄
+// dataset: videoContainer에 부여한 'data- attribute' 반환
+const handleEnded = () => {
+  const {id} = videoContainer.dataset;
+  fetch(`/api/videos/${id}/view`, {
+    method: 'POST',
+  });
 }
 
+video.addEventListener('click', handlePlayClick);
 playBtn.addEventListener('click', handlePlayClick);
 muteBtn.addEventListener('click', handleMuteClick);
 volumRange.addEventListener('input', handleVolumeChange);
 video.addEventListener('loadedmetadata', handleLoadedMetadata);
 video.addEventListener('timeupdate', handleTimeUpdate);
+video.addEventListener('ended', handleEnded);
 timeline.addEventListener('input', handleTimelineChange);
 fullScreenBtn.addEventListener('click', handleFullscreen);
 videoContainer.addEventListener('mousemove', handleMouseMove);
 videoContainer.addEventListener('mouseleave', handleMouseLeave);
+document.addEventListener('keydown', handleKeydown);

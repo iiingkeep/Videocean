@@ -1,7 +1,8 @@
 extends base.pug
 
 block content
-  div#videoContainer
+  //- 'data- attribute'를 추가하여 videoPlayer가 video의 id를 알 수 있도록 함
+  div#videoContainer(data-Id=video._id) 
     video(src='/' + video.fileUrl)
     div#videoControls.videoControls
       div.videoControls__play

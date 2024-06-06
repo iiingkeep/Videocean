@@ -126,4 +126,18 @@ export const search = async(req,res) => {
     }).populate("owner");
   }
   return res.render('search', {pageTitle:'Search', videos});
+};
+
+// videoPlayer.js의 handleEnded 이벤트로인해 POST요청을 받으면 다음의 함수를 실행하여 video의 조회수를 1 증가시킨다.
+// sendStatus(codenumber): 상태코드를 보내고 연결을 끊는다.
+// status(codenumber): 상태코드를 보내기만 하여 pending 상태가 된다. render나 redirect등으로 응답하여 연결을 끊어줘야 한다.
+export const registerView = async(req,res) => {
+  const {id} = req.params;
+  const video = await Video.findById(id);
+  if(!video) {
+    return res.sendStatus(404);
+  }
+  video.meta.views = video.meta.views + 1;
+  await video.save();
+  return res.sendStatus(200);
 }
