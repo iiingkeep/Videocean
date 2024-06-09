@@ -8,19 +8,18 @@ const handleSubmit = (event) => {
   const text = textarea.value
   const videoId = videoContainer.dataset.id;
   // textarea에 아무 내용도 적지 않고 submit 시 return
-  if(trim(text) === "") {
+  if(text === "") {
     return;
   }
+
   fetch(`/api/videos/${videoId}/comment`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      text
-    },
-    )
-  })
+    body: JSON.stringify({text}),
+  });
+  textarea.value = '';
 };
 
 if(form) {
