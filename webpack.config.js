@@ -2,12 +2,16 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require('path');
 
+const BASE_JS = './src/client/js/';
+
 // webpack이 읽을 configuration 파일 내보내기
 // export default. endtry와 output 설정
 module.exports = {
   entry: {
-    main: './src/client/js/main.js', // 변경하려는 기본 파일
-    videoPlayer: './src/client/js/videoPlayer.js',
+    main: BASE_JS + 'main.js', // 변경하려는 기본 파일
+    videoPlayer: BASE_JS + 'videoPlayer.js',
+    recorder: BASE_JS + 'recorder.js',
+    commentSection: BASE_JS + 'commentSection.js'
   },
   mode: 'development',
   watch: true,
