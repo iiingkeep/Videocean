@@ -116,13 +116,14 @@ const handleMouseLeave = () => {
 
 // video control과 관련한 단축키 설정
 const handleKeydown = (event) => {
-  if (event.code === "Space") {
+  const textarea = document.getElementById('textarea');
+  if ((event.target !== textarea) && event.code === "Space") {
     handlePlayClick();
   }
-  if (event.code === "KeyM") {
+  if ((event.target !== textarea) && event.code === "KeyM") {
     handleMuteClick();
   }
-  if (event.code === "KeyF") {
+  if ((event.target !== textarea) && event.code === "KeyF") {
     handleFullscreen ();
   }
 };

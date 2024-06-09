@@ -140,4 +140,10 @@ export const registerView = async(req,res) => {
   video.meta.views = video.meta.views + 1;
   await video.save();
   return res.sendStatus(200);
+};
+
+export const createComment = (req,res) => {
+  console.log(req.params)
+  console.log(req.body.text);
+  return res.end();
 }
