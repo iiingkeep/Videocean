@@ -161,5 +161,22 @@ export const createComment = async(req,res) => {
   });
   video.comments.push(comment._id);
   video.save();
+  return res.status(201).json({newCommentId: comment._id});
+};
+
+export const deleteComment = async(req,res) => {
+  const {
+    user: { _id},
+  } = req.session;
+  const {id} = req.params;
+  const comment = await Comment.findById(id);
+  console.log(comment)
+  if(!comment) {
+    return res.render('404', {pageTitle: 'comment not found'});
+  }
+  if (String(comment.owner) !== String(_id)) {
+    return res.status(403).redirect('/'); //Forbidden
+  };
+  await Comment.findByIdAndDelete(id);
   return res.sendStatus(201);
 };
