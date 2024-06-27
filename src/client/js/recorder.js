@@ -20,14 +20,13 @@ const handleStart = () => {
   startBtn.addEventListener("click", handleStop);
   recorder = new MediaRecorder(stream);
   recorder.ondataavailable = (event) => {
-    console.log(event.data);
     const videoFile = URL.createObjectURL(event.data);
     video.srcObject = null;
     video.src = videoFile;
     video.loop = true;
     video.play();
-  };
-  recorder.start();
+  }
+  recorder.start()
 };
 
 const init = async() => {
