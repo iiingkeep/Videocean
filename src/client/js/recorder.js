@@ -45,6 +45,14 @@ const handleDownload = async() => {
   thumbA.download = 'MyThumbnail.jpg';
   document.body.appendChild(thumbA);
   thumbA.click();
+
+  await ffmpeg.deleteFile('recording.webm');
+  await ffmpeg.deleteFile('output.mp4');
+  await ffmpeg.deleteFile('thumbnail.jpg');
+
+  URL.revokeObjectURL(videoFile);
+  URL.revokeObjectURL(mp4Url);
+  URL.revokeObjectURL(thumbUrl);
 }
 
 const handleStop = () => {
