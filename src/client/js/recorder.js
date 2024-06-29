@@ -1,3 +1,6 @@
+import {  FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
+
 const startBtn = document.getElementById('startBtn');
 const video = document.getElementById("preview");
 
@@ -5,10 +8,30 @@ let stream;
 let recorder;
 let videoFile;
 
-const handleDownload = () => {
+const handleDownload = async() => {
+  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd'
+  const ffmpeg = new FFmpeg();
+  ffmpeg.on("log", ({ message }) => {
+    console.log(message);
+    });
+  await ffmpeg.load({
+    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+  });
+
+  await ffmpeg.writeFile('recording.webm', await fetchFile(videoFile)); // 가상 컴퓨터에 파일 생성
+  // input으로 recording.webm파일을 받아 output으로 output.mp4로 변환. (recording.webm => output.mp4)
+  // -r, 60: 영상을 초당 60프레임으로 인코딩하여 더 빠르게 영상 인코딩
+  await ffmpeg.exec(['-i', 'recording.webm', '-r', '60', 'output.mp4']);
+
+  const mp4File = await ffmpeg.readFile('output.mp4');
+
+  const mp4Blob = new Blob([mp4File.buffer], {type: 'video/mp4'});
+  const mp4Url = URL.createObjectURL(mp4Blob);
+
   const a = document.createElement('a');
-  a.href = videoFile;
-  a.download = 'MyRecording.webm';
+  a.href = mp4Url;
+  a.download = 'MyRecording.mp4';
   document.body.appendChild(a);
   a.click();
 }
