@@ -70,19 +70,12 @@ const handleDownload = async() => {
   actionBtn.addEventListener('click', handleStart);
 }
 
-const handleStop = () => {
-  actionBtn.innerText = 'Download Recording'
-  actionBtn.removeEventListener('click', handleStop);
-  actionBtn.addEventListener('click', handleDownload);
-  recorder.stop();
-};
-
 // createObjectURL: 브라우저 메모리에서만 가능한 URL 생성
 // 이벤트 발생 시 얻는 video data URL을 videoFile에 할당
 const handleStart = () => {
-  actionBtn.innerText = "Stop Recording";
+  actionBtn.innerText = "Recording";
+  actionBtn.disabled = true;
   actionBtn.removeEventListener("click", handleStart);
-  actionBtn.addEventListener("click", handleStop);
   recorder = new MediaRecorder(stream, {mimeType: 'video/webm'});
   recorder.ondataavailable = (event) => {
     videoFile = URL.createObjectURL(event.data);
@@ -90,8 +83,14 @@ const handleStart = () => {
     video.src = videoFile;
     video.loop = true;
     video.play();
+    actionBtn.innerText = 'Download';
+    actionBtn.disabled = false;
+    actionBtn.addEventListener('click', handleDownload);
   }
-  recorder.start()
+  recorder.start();
+  setTimeout(() => {
+    recorder.stop();
+  }, 5000);
 };
 
 
