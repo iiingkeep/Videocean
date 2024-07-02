@@ -2,29 +2,10 @@ import Video from '../models/Video';
 import User from "../models/User";
 import Comment from "../models/Comment";
 
-// export const home =(req,res) => {
-//   Video.find({}, (error, videos) => {
-//   if(error) {
-//   return res.render('server-error');
-//   }
-//     return res.render('home', {pageTitle: 'Home', videos});
-//   })
-//   };
-
-// export const home = (req,res) => {
-//   Video.find({})
-//   .then((videos) => {
-//     console.log('videos', videos);
-//     return res.render('home', {pageTitle: 'Home', videos: [] });
-//   })
-//   .catch((error) => {
-//     console.log('error', error);
-//   })
-// }
 export const home = async(req,res) => {
   const videos = await Video.find({}).sort({createdAt: 'desc'}).populate('owner')
     return res.render('home', {pageTitle: 'Home', videos});
-}
+};
 
 export const watch = async(req, res) => {
   const {id} = req.params;
@@ -33,7 +14,7 @@ export const watch = async(req, res) => {
     return res.render('watch', {pageTitle: video.title, video });
   }
   return res.render('404', {pageTitle: 'Video not found'});
-}
+};
 
 export const getEdit = async(req,res) => {
   const {
@@ -68,7 +49,8 @@ export const postEdit = async(req,res) => {
     title,
     description,
     hashtags: Video.formatHashtags(hashtags),
-  })
+  });
+  req.flash('success','Changes saved.')
   return res.redirect(`/videos/${id}`);
 }
 
