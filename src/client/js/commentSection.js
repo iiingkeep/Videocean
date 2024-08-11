@@ -2,6 +2,7 @@ const videoContainer = document.getElementById('videoContainer');
 const form = document.getElementById('commentForm');
 const deleteCommentBtn = document.getElementsByClassName('video__comment-delete-btn');
 
+
 // watch.pug에서 보여주는 것과 같은 댓글창 ui를 똑같이 js로 구현
 // 댓글을 등록하면 그 댓글의 text를 받아 댓글 ul의 가장 최신 li로 추가해 실시간으로 댓글이 등록되어 보이는 것 처럼 만듦
 const addComment = (text, id) => {
@@ -9,18 +10,28 @@ const addComment = (text, id) => {
   const newComment = document.createElement('li');
   newComment.dataset.id = id;
   newComment.className = 'video__comment';
-  const icon = document.createElement('i');
-  icon.className = 'fa-solid fa-comment';
+  const div = document.createElement('div');
+  div.className = 'video__comment-userbox';
+  const imgSrc = document.querySelector('.header__avatar').getAttribute('src');
+  const img = document.createElement('img');
+  img.className = 'video__comment-avatar';
+  img.src = imgSrc;
+  const usernameSrc = document.querySelector('.video__comments span').textContent;
   const span = document.createElement('span');
-  span.innerText = ` ${text}`
-  const span2 = document.createElement("span");
-  span2.innerText = " ❌";
-  newComment.appendChild(icon);
-  newComment.appendChild(span);
+  span.innerText = `${usernameSrc}`;
+  const span2 = document.createElement('span');
+  span2.innerText = ` ${text}`;
+  const span3 = document.createElement("span");
+  span3.className = 'video__comment-delete-btn'
+  span3.innerText = "delete";
+  newComment.appendChild(div);
+  div.appendChild(img);
+  div.appendChild(span);
   newComment.appendChild(span2);
+  newComment.appendChild(span3);
+  span3.addEventListener('click', handleDelete);
   videoComments.prepend(newComment);
 }
-
 
 
 // 댓글 폼 제출 시 보안 상 유저의 정보에 대해 프론트 코드에 적지 않는다. 세션으로 어떤 유저가 댓글을 다는지 알 수 있기 때문에 세션을 활용하여 유저를 파악한다.

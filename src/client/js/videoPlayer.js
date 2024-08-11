@@ -54,7 +54,7 @@ const handleVolumeChange = (e) => {
     video.muted = true;
     muteBtnIcon.className = "fa-solid fa-volume-high";
     }
-  }
+};
 
 // 영상의 시간을 00:00:00 의 형태로 포맷하기 위한 함수
 // new Date(밀리초)을 사용하면 반환되는 데이터에서 시간 부분만 가져와 사용하는 방법
@@ -66,7 +66,7 @@ const formatTime = (seconds) =>
 const handleLoadedMetadata = () => {
   totalTime.innerText = formatTime(Math.floor(video.duration));
   timeline.max = Math.floor(video.duration);
-}
+};
 
 // 영상에서 현재 재생되고있는 부분의 시간 로딩
 const handleTimeUpdate = () => {
@@ -91,7 +91,7 @@ const handleFullscreen = () => {
   }
 };
 
-const hideControls = () => videoControls.classList.remove('showing')
+const hideControls = () => videoControls.classList.remove('showing');
 
 const handleMouseMove = () => {
   // video 밖으로 마우스가 나갔다가 다시 들어오면 handleMouseLeave 함수의 setTimeout이 실행되지 않아야 하므로 setTimeout을 지워주고 null로 다시 설정
@@ -118,6 +118,7 @@ const handleMouseLeave = () => {
 const handleKeydown = (event) => {
   const textarea = document.getElementById('textarea');
   if ((event.target !== textarea) && event.code === "Space") {
+    event.preventDefault();
     handlePlayClick();
   }
   if ((event.target !== textarea) && event.code === "KeyM") {
@@ -135,7 +136,7 @@ const handleEnded = () => {
   fetch(`/api/videos/${id}/view`, {
     method: 'POST',
   });
-}
+};
 
 video.addEventListener('click', handlePlayClick);
 playBtn.addEventListener('click', handlePlayClick);

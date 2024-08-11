@@ -5,18 +5,19 @@ export const getJoin = (req,res) => res.render('Join', {pageTitle: 'Create Accou
 
 export const postJoin = async(req,res) => {
   const {name, username, email, password,password2, location} = req.body;
+  const avatarUrl = 'uploads\\avatars\\avatar.jpg'
   const pageTitle = 'Join';
   if(password !== password2) {
+    req.flash('error', 'The Password does not match the confirmation');
     return res.status(400).render('join', {
       pageTitle,
-      errorMessage: 'Password confimation does not match.',
     })
   }
   const exists = await User.exists({$or: [{username}, {email}]});
   if (exists) {
+    req.flash('error', 'This username/email is already taken');
     return res.status(400).render('join', {
       pageTitle,
-      errorMessage: 'This username/email is already taken',
     });
   }
   try{
@@ -26,9 +27,12 @@ export const postJoin = async(req,res) => {
       email,
       password,
       location,
+      avatarUrl
     });
+    req.flash('info', 'Registration successful. Please log in');
     return res.redirect('/login');
   } catch (error) {
+    req.flash('error', `${error._message}`);
     return res.status(400).render('join', {
       pageTitle: "Upload Video",
       errorMessage: error._message,
@@ -45,21 +49,23 @@ export const postLogin = async(req,res) => {
   // 입력한 username을 가지는 데이터가 있는지 db에서 확인
   const user = await User.findOne({ username, socialOnly: false });
   if (!user) {
+    req.flash('error', 'An account with this username does not exists');
     return res.status(400).render("login", {
       pageTitle,
-      errorMessage: "An account with this username does not exists.",
     });
   }
   // 유저가 form에 입력한 password를 bcrypt.compare를 이용해 db에 저장된 해당 username이 등록한 password와 일치하는지 확인
   const ok = await bcrypt.compare(password, user.password);
   if(!ok) {
+    req.flash('error', 'Wrong password');
     return res.status(400).render('login', {
       pageTitle,
-      errorMessage: 'Wrong password',
     });
   }
   req.session.loggedIn = true;
   req.session.user = user;
+  console.log("req.session: ", req.session)
+  req.flash('info', 'Welcome');
   return res.redirect('/');
 };
 
@@ -171,12 +177,14 @@ export const postEdit = async(req, res) => {
   const emailExists =
     email != sessionEmail ? await User.exists({ email }) : undefined;
   if (usernameExists || emailExists) {
+    if(usernameExists) {
+      req.flash('error', "This username is already taken");
+    }
+    if(emailExists) {
+      req.flash('error', "This email is already taken");
+    }
     return res.status(400).render("edit-profile", {
-      pageTitle: "Edit Profile",
-      usernameErrorMessage: usernameExists
-        ? "This username is already taken"
-        : 0,
-      emailErrorMessage: emailExists ? "This email is already taken" : 0,
+      pageTitle: "Edit Profile"
     });
   }
   // 같은 email 또는 username이 존재하지 않으면 정보 수정을 완료
@@ -220,7 +228,7 @@ export const getChangePassword = (req,res) => {
 export const postChangePassword = async(req,res) => {
   const {
     session: {
-      user: {_id, password},
+      user: { _id, password },
     },
     body: {
       oldPassword, 
@@ -231,26 +239,26 @@ export const postChangePassword = async(req,res) => {
   // 기존의 비밀번호가 맞는지 확인
   const oldPasswordConfirmation = await bcrypt.compare(oldPassword, password);
   if(!oldPasswordConfirmation) {
+    req.flash('error', "The current password is incorrect ");
     return res.status(400).render('users/change-password', {
       pageTitle: 'Change Password',
-      errorMessage: 'The current password is incorrect',
     });
   }
   // 새로 입력한 password와 password comfirmation 일치여부 확인
   if(newPassword !== newPassword2) {
+    req.flash('error', 'The Password does not match the confirmation');
     return res.status(400).render('users/change-password', {
       pageTitle: 'Change Password',
-      errorMessage: 'The Password does not match',
     });
   }
   // 입력한 password가 모두 일치할 경우 해당 유저의 id로 유저 정보를 찾아 DB에 패스워드 변경하여 저장. 단, save()를 통해 새 password를 해시 후 저장.
   // 세션의 password 데이터도 업데이트 해준 뒤 새로운 password로 로그인 하도록 로그아웃 조치
-  const user = await User.findById('_id');
+  const user = await User.findById(_id);
   user.password = newPassword;
   await user.save();
   req.session.user.password = user.password;
   req.flash('info', 'Password Update')
-  return res.redirect('/logout');
+  return res.redirect('/users/logout');
 }
 
 // 유저의 profile페이지 렌더링.

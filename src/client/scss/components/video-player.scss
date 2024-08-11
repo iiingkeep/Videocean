@@ -33,13 +33,11 @@
       .videoControls__playBtn {
         margin: 0px 15px;
       }
-      .videoControls__time {
-        font-size: 12px;
-      }
     }
     .videoControls__volume {
       display: flex;
       align-items: center;
+      height: 5px;
       span {
         margin-left: 10px;
         i {

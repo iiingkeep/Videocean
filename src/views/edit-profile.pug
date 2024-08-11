@@ -4,15 +4,19 @@ block content
   form(method="POST", enctype="multipart/form-data").edit-profile__form
     label(for='avatar') Avatar
     input(type='file', id='avatar', name='avatar', accept='image/*')
+    label(for='name') Name
     input(name='name', placeholder='name', type='text', required, value=loggedInUser.name)
     if emailErrorMessage
       span=emailErrorMessage
+    label(for='email') Email
     input(name='email', placeholder='email', type='email', required, value=loggedInUser.email)
     if usernameErrorMessage
       span=usernameErrorMessage
+    label(for='username') Username
     input(name='username', placeholder='username', type='text', required, value=loggedInUser.username)
-    input(name='location', placeholder='location', type='text', required, value=loggedInUser.location)
-    input(type='submit', value='update profile')
+    label(for='location') Location
+    input(name='location', placeholder='location', type='text', required, value=loggedInUser.location )
+    input(type='submit', value='update')
     //- 깃허브로 로그인한 사용자는 비밀번호가 없으므로 비밀번호 변경 버튼을 숨기고 사이트에서 아이디와 패스워드를 만든 사람만 비밀번호를 변경할 수 있게 노출
     if !loggedInUser.socialOnly
       div.edit-profile__password

@@ -1,21 +1,60 @@
 // video mixin
 .video-mixin {
   .video-mixin__thumb {
-    height: 140px;
+    height: 230px;
     border-radius: 7px;
     width: 100%;
-    background-color: ivory;
+    background-size: cover;
+    background-position: center;
+    background-color: black;
+  }
+  .video-mixin__thumb::before {
+    content: "";
+    display: block;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.7);
+    background-image: url('./files/play.png');
+    background-size: 20%;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .video-mixin__thumb:hover::before {
+    opacity: 1;
   }
   .video-mixin__data {
     padding: 0px 15px;
     .video-mixin__title {
-      font-size: 18px;
+      width: 336px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 25px;
+      font-weight: 400;
       display: block;
-      margin-top: 10px;
+      margin: 10px 0;
     }
     .video-mixin__meta {
       margin-top: 5px;
-      font-size: 12px;
+      font-size: 15px;
+      display: flex;
+    }
+    .video-mixin__meta-userbox {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .video-mixin__meta-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    .video-mixin__meta-username {
+      font-size: 17px;
     }
   }
 }

@@ -1,20 +1,21 @@
 extends base
 
 block content 
-  div
-    video#preview
-    button#actionBtn Start Recording
-  if errorMessage 
-    span=errorMessage
+  div(style='display:flex; flex-direction:column; align-items:center; width:1200px; margin: 0 auto 30px;')
+    video#preview(style='width:500px; height: 250px;')
+    button#actionBtn(style='width:130px; margin:10px 0 0 0;') Recording
   form(method='POST', enctype='multipart/form-data')
     label(for='video') Video File 
     input(name='video', id='video', type='file', accept='video/*', required)
     label(for='thumb') Thumbnail File 
     input(name='thumb', id='thumb', type='file', accept='image/*', required)
-    input(name='title', placeholder='Title', required, type='text', maxlength=80)
-    input(name='description', placeholder='Description', required, type='text', minlength=1)
-    input(name='hashtags', placeholder='Hashtags, separated by comma', required, type='text')
-    input(type='submit', value='Upload Video')
+    label(for='title') Title
+    input(name='title' required, type='text', maxlength='80' )
+    label(for='description') Description
+    input(name='description' required, type='text', minlength=1)
+    label(for='hashtags') Hashtags
+    input(name='hashtags', placeholder='Separated by comma', required, type='text')
+    input(type='submit', value='Upload' style='margin-bottom: 10px;')
 
 block scripts 
   script(src='/static/js/recorder.js')

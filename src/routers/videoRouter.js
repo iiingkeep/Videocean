@@ -19,8 +19,8 @@ videoRouter
 .all(protectorMiddleware)
 .get(getUpload)
 .post(videoUploadMiddleware.fields([
-  {name: 'video', maxCount: 1},
-  {name: 'thumb', maxCount: 1}
-  ]), postUpload);
+  { name: "video" },
+  { name: "thumb" }]),
+  postUpload);
 videoRouter.delete('/comments/:id([0-9a-f]{24})', deleteComment)
 export default videoRouter;

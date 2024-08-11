@@ -8,8 +8,8 @@ block content
       i.fas.fa-search
 
 
-  div.video__grid
+  div.video-grid
     each video in videos 
       +video(video)
     else 
-      span.empty__message No videos found
+      div.empty__message No videos found

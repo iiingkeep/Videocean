@@ -9,9 +9,9 @@ block content
         span#play.videoControls__playBtn
           i.fa-solid.fa-play
         div.videoControls__time 
-          span#currentTime 00:00
+          span#currentTime 00:00:00
           span  / 
-          span#totalTime 00:00
+          span#totalTime 00:00:00
       input(type='range',step='1', value=0, min='0')#timeline.videoControls__timeline
       div.videoControls__volume
         input(type='range',step='0.1', value=0.5, min='0', max='1')#volume
@@ -20,30 +20,45 @@ block content
       div
         span#fullScreen 
           i.fa-solid.fa-expand
-  //-
-        div
-            p=video.description
-            small=video.createdAt
-        div
-            small Uploaded by 
-                a(href=`/users/${video.owner._id}`)=video.owner.name
-        if String(video.owner._id) === String(loggedInUser._id)
-            a(href=`${video.id}/edit`) Edit Video &rarr;
-            br
-            a(href=`${video.id}/delete`) Delete Video &rarr;
+  div.video__underbox
+    div.video__data
+      p.video__title=video.title
+      small.video__owner Uploaded by 
+        a(href=`/users/${video.owner._id}`)
+          if !video.owner.avatarUrl
+            img(src='./uploads/avatars/avatar.jpg').video__owner-avatar
+          else
+            img(src=`${video.owner.avatarUrl}`).video__owner-avatar
+          span=video.owner.username
+      small.video__createdAt=new Date(video.createdAt).toLocaleDateString("en-US", {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})
+    if String(video.owner._id) === String(loggedInUser._id)
+      div.video__btns
+        a(href=`${video.id}/edit`).video__btn Edit
+        a(href=`${video.id}/delete`).video__btn Delete
+    
+  hr
+
   if loggedIn
     div.video__comments
+      div.video__comment-userbox
+        img(src=`${loggedInUser.avatarUrl}`).video__comment-avatar
+        span #{loggedInUser.username}
       form.video__comment-form#commentForm
-        textarea#textarea(cols='30', rows='10', placeholder='Write a comment')
-        button Add Comment
+        textarea#textarea(cols='30', rows='5', maxlength="800" placeholder='Write a comment' required)
+        button.video__comments-btn Comment
   div.video__comments 
     ul 
       each comment in video.comments.reverse()
         li.video__comment(data-id=comment._id)
-          i.fa-solid.fa-comment
+          div.video__comment-userbox
+            if !comment.owner.avatarUrl
+              img(src='./uploads/avatars/avatar.jpg').video__comment-avatar
+            else 
+              img(src=`${comment.owner.avatarUrl}`).video__comment-avatar
+            span #{comment.owner.username}
           span  #{comment.text}
-          if loggedInUser._id == comment.owner
-            span.video__comment-delete-btn  ❌
+          if loggedInUser._id == comment.owner._id
+            span.video__comment-delete-btn  delete
 
 block scripts
     script(src="/static/js/videoPlayer.js") 

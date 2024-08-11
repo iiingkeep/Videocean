@@ -4,8 +4,12 @@ header {
   justify-content: space-between;
   align-items: center;
   .header__logo {
-    color: $red;
-    font-size: 38px;
+    color: rgb(255,255,255);
+    font-size: 50px;
+    font-weight: 700;
+    display: flex;
+    margin-top: 20px;
+    animation: wave 2s infinite;
   }
   ul {
     display: flex;

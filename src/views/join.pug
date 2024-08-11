@@ -3,15 +3,21 @@ extends base
 block content
   if errorMessage
     span=errorMessage
-  form(method='POST')
-    input(name='name', placeholder='name', type='text', required)
-    input(name='email', placeholder='email', type='email', required)
-    input(name='username', placeholder='username', type='text', required) 
-    input(name='password', placeholder='password', type='password', required)
-    input(name='password2', placeholder='Confirm password', type='password', required)
-    input(name='location', placeholder='location', type='text', required)
-    input(type='submit', value='join')
+  form(method='POST' style='padding:50px 50px 30px;')
+    label(for='name') Name
+    input(name='name' type='text' required)
+    label(for='email') Email
+    input(name='email' type='email' required)
+    label(for='username') Username
+    input(name='username' placeholder='2 to 10 characters' type='text' required minlength='2' maxlength='10')
+    label(for='password') Password
+    input(name='password' placeholder='8 to 15 characters' type='password' required minlength='8' maxlength='15')
+    label(for='password2') Confirm password
+    input(name='password2'  type='password' required, minlength='8' maxlength='15')
+    label(for='location') Location
+    input(name='location' type='text' required)
+    input(type='submit' value='join')
     include partials/social-login
   div.auth-switch 
-    span Already have an account? 
+    span Already have an account ? 
     a(href='/login') Log in now &rarr;
